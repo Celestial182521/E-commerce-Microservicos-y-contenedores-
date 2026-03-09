@@ -1,128 +1,111 @@
-# API del Sistema E-commerce
+# API del Sistema
 
-## Auth / Usuarios
-
-### GET /users
-Lista todos los usuarios.  
-**Acceso:** admin
-
-### GET /users/{id}
-Obtiene un usuario específico por su ID.  
-**Acceso:** admin
-
-### POST /auth/register
-Registra un nuevo usuario en el sistema.  
-**Acceso:** público
-
-### POST /auth/login
-Inicia sesión y devuelve un token de autenticación.  
-**Acceso:** público
-
-### GET /auth/me
-Obtiene el perfil del usuario autenticado.  
-**Acceso:** usuario autenticado
-
-### PATCH /users/{id}
-Actualiza parcialmente la información de un usuario.  
-**Acceso:** admin o dueño de la cuenta
-
-### DELETE /users/{id}
-Elimina un usuario.  
-**Acceso:** admin o dueño de la cuenta
+La API del sistema permite interactuar con los diferentes módulos del e-commerce mediante endpoints REST.
 
 ---
 
-## Productos / Inventario
+# Auth / Usuarios
 
-### GET /products
-Lista todos los productos disponibles.  
-**Acceso:** público
+**GET /users**
+Lista todos los usuarios (admin).
 
-### GET /products/{id}
-Obtiene un producto específico por su ID.  
-**Acceso:** público
+**GET /users/{id}**
+Obtiene un usuario específico (admin).
 
-### POST /products
-Crea un nuevo producto.  
-**Acceso:** admin
+**POST /auth/register**
+Registra un nuevo usuario.
 
-### PATCH /products/{id}
-Actualiza parcialmente un producto.  
-**Acceso:** admin
+**POST /auth/login**
+Inicia sesión y devuelve un token.
 
-### DELETE /products/{id}
-Elimina un producto.  
-**Acceso:** admin
+**GET /auth/me**
+Obtiene el perfil del usuario autenticado.
 
----
+**PATCH /users/{id}**
+Actualiza información de usuario.
 
-## Pedidos
-
-### GET /orders
-Lista los pedidos del usuario autenticado.  
-Si es admin, puede listar todos.  
-**Acceso:** usuario autenticado / admin
-
-### GET /orders/{id}
-Obtiene un pedido específico incluyendo total, fecha e id del usuario.  
-**Acceso:** usuario autenticado / admin
-
-### POST /orders
-Crea un nuevo pedido con sus items.  
-**Acceso:** usuario autenticado
-
-### PUT /orders/{id}
-Reemplaza completamente un pedido.  
-**Acceso:** admin
-
-### PATCH /orders/{id}
-Actualiza parcialmente un pedido, por ejemplo su estado.  
-**Acceso:** admin o según regla de negocio
-
-### DELETE /orders/{id}
-Cancela o elimina un pedido, según la regla definida.  
-**Acceso:** admin o dueño según política
+**DELETE /users/{id}**
+Elimina un usuario.
 
 ---
 
-## Detalles de Pedido
+# Productos
 
-### GET /orders/{id}/items
-Lista todos los detalles o items de un pedido.  
-**Acceso:** usuario autenticado / admin
+**GET /products**
+Lista productos disponibles.
 
-### GET /orders/{id}/items/{itemId}
-Obtiene un item específico de un pedido.  
-**Acceso:** usuario autenticado / admin
+**GET /products/{id}**
+Obtiene un producto específico.
 
-### POST /orders/{id}/items
-Agrega un item al pedido.  
-**Acceso:** usuario autenticado
+**POST /products**
+Crea producto (admin).
 
-### PATCH /orders/{id}/items/{itemId}
-Modifica un item específico del pedido.  
-**Acceso:** usuario autenticado / admin
+**PATCH /products/{id}**
+Actualiza producto (admin).
 
-### DELETE /orders/{id}/items/{itemId}
-Elimina un item del pedido.  
-**Acceso:** usuario autenticado / admin
+**DELETE /products/{id}**
+Elimina producto (admin).
 
 ---
 
-## Pagos
+# Carrito
 
-### GET /orders/{id}/payment
-Obtiene la información del pago asociado al pedido.  
-**Acceso:** usuario autenticado / admin
+**GET /cart**
+Obtiene el carrito del usuario autenticado.
 
-### POST /orders/{id}/payment
-Crea el pago correspondiente al pedido.  
-**Acceso:** usuario autenticado
+**POST /cart/items**
+Agrega producto al carrito.
 
-### PATCH /orders/{id}/payment
-Actualiza el estado del pago, por ejemplo de PENDIENTE a PAGADO.  
-**Acceso:** admin o sistema
+**PATCH /cart/items/{itemId}**
+Modifica cantidad del producto.
 
-### DELETE /orders/{id}/payment
-Revierte o elimina el pago asociado al pedido.  
-**Acceso:** admin
+**DELETE /cart/items/{itemId}**
+Elimina producto del carrito.
+
+**DELETE /cart**
+Vacía completamente el carrito.
+
+---
+
+# Pedidos
+
+**GET /orders**
+Lista pedidos del usuario (o todos si es admin).
+
+**GET /orders/{id}**
+Obtiene un pedido específico.
+
+**POST /orders**
+Crea un pedido a partir del carrito.
+
+**PATCH /orders/{id}**
+Actualiza estado del pedido.
+
+**DELETE /orders/{id}**
+Cancela pedido.
+
+---
+
+# Detalles de Pedido
+
+**GET /orders/{id}/items**
+Lista items del pedido.
+
+**GET /orders/{id}/items/{itemId}**
+Obtiene un item específico.
+
+---
+
+# Pagos
+
+**GET /orders/{id}/payment**
+Obtiene el pago asociado.
+
+**POST /orders/{id}/payment**
+Realiza el pago del pedido.
+
+**PATCH /orders/{id}/payment**
+Actualiza estado del pago.
+
+**DELETE /orders/{id}/payment**
+Revierte o elimina el pago.

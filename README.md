@@ -1,22 +1,73 @@
-# E-commerce Microservices Platform
+# E-Commerce Microservices Platform
 
-Proyecto de comercio electrónico basado en arquitectura de microservicios.
+Proyecto de comercio electrónico basado en **arquitectura de microservicios**.
+El sistema permite gestionar usuarios, productos, pedidos y pagos mediante **APIs REST**.
 
-## Tecnologías
+---
 
-- Docker
-- REST API
-- Microservices
-- Base de datos relacional
+## Arquitectura
 
-## Servicios
+El sistema se divide en los siguientes microservicios:
 
-- User Service
-- Product Service
-- Order Service
-- Inventory Service
-- Payment Service
+* Auth Service
+* User Service
+* Product Service
+* Cart Service
+* Order Service
+* Payment Service
+
+Cada servicio se comunica mediante **API REST**.
+
+---
+
+## Estructura del Proyecto
+
+```
+E-commerce-Microservicios-y-contenedores
+│
+├── diagrams
+├── docker
+├── docs
+│   ├── arquitectura.md
+│   ├── api.md
+│   └── base-datos.md
+│
+├── services
+│
+├── .gitignore
+├── LICENSE
+└── README.md
+```
+
+---
 
 ## Documentación
 
-La documentación se encuentra en la carpeta /docs.
+La documentación del sistema se encuentra en:
+
+* `docs/arquitectura.md`
+* `docs/api.md`
+* `docs/base-datos.md`
+
+---
+
+## Tecnologías
+
+* REST API
+* Microservicios
+* Docker
+* Git
+
+---
+
+## Equipo
+
+* Ángel Mauricio Flores
+* Daniel Villalobos
+* Diego Morales
+
+---
+
+## Licencia
+
+MIT License
