@@ -10,12 +10,12 @@ El sistema permite gestionar usuarios, productos, pedidos y pagos mediante **API
 El sistema se divide en los siguientes microservicios:
 
 * Auth Service
-* User Service
-* Product Service
+* Products Service
 * Cart Service
-* Order Service
+* Request Order Service
 * Payment Service
-
+* Order Service
+  
 Cada servicio se comunica mediante **API REST**.
 
 ---
@@ -62,9 +62,9 @@ La documentación del sistema se encuentra en:
 
 ## Equipo
 
-* Ángel Mauricio Flores
-* Daniel Villalobos
-* Diego Morales
+* Ángel Mauricio Flores Olivarez 
+* Avitud Cruz Habid Hazel
+* Juan Diego Trejo Fuentes
 
 ---
 
