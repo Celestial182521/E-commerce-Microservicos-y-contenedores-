@@ -62,7 +62,7 @@ La documentación del sistema se encuentra en:
 
 ## Equipo
 
-* Ángel Mauricio Flores
+* Ángel Mauricio Flores Olivarez 
 * Avitud Cruz Habid Hazel
 * Juan Diego Trejo Fuentes
 
