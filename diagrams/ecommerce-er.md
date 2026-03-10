@@ -20,6 +20,7 @@ PRODUCTOS {
 }
 
 CARRITO {
+  int id_carrito PK
   int id_user FK
   int id_producto FK
   int cantidad
@@ -30,7 +31,7 @@ CARRITO {
 DETALLES_PEDIDO {
   int id_detalle PK
   int id_producto FK
-  int id_usuario FK
+  int id_user FK
   int cantidad
   float precio_total
 }
@@ -44,15 +45,16 @@ PAGOS {
 
 PEDIDOS {
   int id_pedido PK
-  int id_pago FK
+  int id_user FK
   string estado_pedido
+  date fecha
 }
 
-AUTENTICACION ||--o{ CARRITO : tiene
+%% Relaciones según el flujo
+
+AUTENTICACION ||--o{ PRODUCTOS : visualiza
 PRODUCTOS ||--o{ CARRITO : agrega
-
-AUTENTICACION ||--o{ DETALLES_PEDIDO : genera
-PRODUCTOS ||--o{ DETALLES_PEDIDO : contiene
-
-PEDIDOS ||--|| PAGOS : paga
-PEDIDOS ||--o{ DETALLES_PEDIDO : incluye
+CARRITO ||--o{ DETALLES_PEDIDO : genera
+DETALLES_PEDIDO ||--|| PAGOS : requiere
+PAGOS ||--|| PEDIDOS : confirma
+```
