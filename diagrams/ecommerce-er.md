@@ -3,7 +3,8 @@
 ```mermaid
 erDiagram
 
-AUTENTICACION {
+
+USUARIOS {
   int id_user PK
   string nombre
   string correo
@@ -52,9 +53,8 @@ PEDIDOS {
 
 %% Relaciones según el flujo
 
-AUTENTICACION ||--o{ PRODUCTOS : visualiza
+USUARIOS ||--o{ PRODUCTOS : visualiza
 PRODUCTOS ||--o{ CARRITO : agrega
 CARRITO ||--o{ DETALLES_PEDIDO : genera
 DETALLES_PEDIDO ||--|| PAGOS : requiere
 PAGOS ||--|| PEDIDOS : confirma
-```
