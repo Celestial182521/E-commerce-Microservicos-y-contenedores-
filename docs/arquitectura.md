@@ -22,46 +22,33 @@ La arquitectura busca:
 
 ## Microservicios principales
 
-### 1. Auth Service
-Responsable de la autenticación y acceso al sistema.
 
-Funciones principales:
 
-- registro de usuarios
-- inicio de sesión
-- generación de token
-- validación de usuario autenticado
-- consulta del perfil del usuario autenticado
-
-Endpoints relacionados:
-
-- `POST /auth/register`
-- `POST /auth/login`
-- `GET /auth/me`
-
----
-
-### 2. User Service
+### 1. User Service
 Responsable de la administración de usuarios.
 
 Funciones principales:
 
+- registrar usuarios
+- iniciar sesión
 - listar usuarios
-- obtener usuario por ID
+- btener usuario por ID
 - actualizar datos de usuario
 - eliminar usuario
 - control de acceso según rol o propietario
 
 Endpoints relacionados:
 
-- `GET /users`
-- `GET /users/{id}`
-- `PATCH /users/{id}`
-- `DELETE /users/{id}`
+ - GET /users
+ - GET /users/{id}
+ - POST /users
+ - POST /users/login
+ - PATCH /users/{id}
+ - DELETE /users/{id}
 
 ---
 
-### 3. Product Service
+### 2. Product Service
 Responsable de la gestión de productos e inventario.
 
 Funciones principales:
@@ -83,7 +70,7 @@ Endpoints relacionados:
 
 ---
 
-### 4. Order Service
+### 3. Order Service
 Responsable de la gestión de pedidos.
 
 Funciones principales:
@@ -106,7 +93,7 @@ Endpoints relacionados:
 
 ---
 
-### 5. Order Items Service
+### 4. Order Items Service
 Responsable de la gestión del detalle de cada pedido.
 
 Funciones principales:
@@ -127,7 +114,7 @@ Endpoints relacionados:
 
 ---
 
-### 6. Payment Service
+### . Payment Service
 Responsable del procesamiento y control de pagos.
 
 Funciones principales:

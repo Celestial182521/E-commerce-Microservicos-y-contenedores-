@@ -4,29 +4,23 @@ La API del sistema permite interactuar con los diferentes módulos del e-commerc
 
 ---
 
-# Auth / Usuarios
+ Usuarios
 
-**GET /users**
-Lista todos los usuarios (admin).
+GET /users
+Lista todos los usuarios registrados.
+(Solo accesible para administradores)
 
-**GET /users/{id}**
-Obtiene un usuario específico (admin).
+GET /users/{id}
+Obtiene la información de un usuario específico.
 
-**POST /auth/register**
-Registra un nuevo usuario.
+POST /users
+Crea un nuevo usuario en el sistema.
 
-**POST /auth/login**
-Inicia sesión y devuelve un token.
+PATCH /users/{id}
+Actualiza parcialmente la información de un usuario.
 
-**GET /auth/me**
-Obtiene el perfil del usuario autenticado.
-
-**PATCH /users/{id}**
-Actualiza información de usuario.
-
-**DELETE /users/{id}**
-Elimina un usuario.
-
+DELETE /users/{id}
+Elimina un usuario del sistema.
 ---
 
 # Productos
