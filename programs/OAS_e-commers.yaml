@@ -1,0 +1,569 @@
+openapi: 3.0.4
+info:
+  title: OAS ecommerce Dinamita
+  description: API REST completa para el uso en un ecommerce (Gestión de Usuarios, catálogo, carrito de compras y gestión de pedidos).
+  version: 1.0.0
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Servidor de desarrollo
+
+tags:
+  - name: Users
+    description: Operaciones de usuarios en el ecommerce
+  - name: Products
+    description: Funciones del catálogo de productos
+  - name: Cart
+    description: Funciones del carrito de compras del usuario
+  - name: Orders
+    description: Gestión de pedidos y estados de compra
+  - name: Payments
+    description: Procesamiento y consulta de pagos
+
+paths:
+  # FUNCIONES DE USUARIOS
+  /Users:
+    post:
+      tags: 
+        - Users
+      summary: Crear nuevo usuario
+      description: Registrar un nuevo usuario 
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+      responses:
+        '201':
+          description: Usuario creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Users'
+        '400':
+          description: Datos de entrada inválidos
+        '409':
+          description: Conflicto - El usuario ya existe
+    get:
+      tags: 
+        - Users
+      summary: Obtener lista de todos los Usuarios
+      operationId: allUsers
+      responses:
+        '200':
+          description: Lista de usuarios obtenida.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Users'
+
+  /Users/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      tags: 
+        - Users
+      summary: Obtener un usuario específico
+      responses:
+        '200':
+          description: Usuario encontrado
+    patch:
+      tags: 
+        - Users
+      summary: Actualiza parcialmente la información del usuario
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+      responses:
+        '200':
+          description: Información actualizada
+    delete:
+      tags: 
+        - Users
+      summary: Eliminar usuario del sistema
+      responses:
+        '204':
+          description: Usuario eliminado.
+
+  # FUNCIONES DE PRODUCTOS
+  /products:
+    get:
+      tags: 
+        - Products
+      summary: Lista productos
+      responses:
+        '200':
+          description: Producto obtenido
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Products'
+    post:
+      tags: 
+        - Products
+      summary: Crea producto
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Products'
+      responses:
+        '201':
+          description: Producto registrado.
+
+  /products/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    patch:
+      tags: 
+        - Products
+      summary: Actualiza producto 
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductUpdate'
+      responses:
+        '200':
+          description: Producto actualizado.
+    delete:
+      tags: 
+        - Products
+      summary: Elimina producto 
+      responses:
+        '204':
+          description: Producto eliminado del sistema.
+
+  # FUNCIONES DE CARRITO
+  /cart:
+    get:
+      tags: 
+        - Cart
+      summary: Obtiene el carrito del usuario
+      responses:
+        '200':
+          description: Detalle del carrito
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+    delete:
+      tags: 
+        - Cart
+      summary: Vacía completamente el carrito
+      responses:
+        '204':
+          description: Carrito vaciado.
+
+  /cart/items:
+    post:
+      tags: 
+        - Cart
+      summary: Agrega producto al carrito
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CartItemRequest'
+      responses:
+        '201':
+          description: Producto añadido.
+
+  /cart/items/{itemId}:
+    parameters:
+      - name: itemId
+        in: path
+        required: true
+        schema:
+          type: integer
+    patch:
+      tags: 
+        - Cart
+      summary: Modifica cantidad del producto
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: integer
+                  minimum: 1
+      responses:
+        '200':
+          description: Cantidad actualizada.
+    delete:
+      tags: 
+        - Cart
+      summary: Elimina producto del carrito
+      responses:
+        '204':
+          description: Producto removido.
+
+  # FUNCIONES DE PEDIDOS
+  /orders:
+    get:
+      tags: 
+        - Orders
+      summary: Lista pedidos del usuario
+      responses:
+        '200':
+          description: Lista de pedidos.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+    post:
+      tags: 
+        - Orders
+      summary: Crea un pedido a partir del carrito
+      responses:
+        '201':
+          description: Pedido generado con éxito.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+
+  /orders/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      tags: 
+        - Orders
+      summary: Obtiene un pedido específico
+      responses:
+        '200':
+          description: Detalle del pedido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+    patch:
+      tags: 
+        - Orders 
+      summary: Actualiza estado del pedido
+      description: Cambia el estado (Pendiente, Enviado, Completado)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: 
+                    - pending
+                    - shipped
+                    - completed
+                    - cancelled
+      responses:
+        '200':
+          description: Estado actualizado.
+    delete:
+      tags: 
+        - Orders
+      summary: Cancela pedido
+      responses:
+        '204':
+          description: Pedido cancelado satisfactoriamente.
+
+  # FUNCIONES DE DETALLES DE PEDIDO
+  /orders/{id}/items:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      tags: 
+        - Orders
+      summary: Lista items del pedido
+      responses:
+        '200':
+          description: Lista de productos dentro de la orden.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderItem'
+
+  /orders/{id}/items/{itemId}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: itemId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      tags: 
+        - Orders
+      summary: Obtiene un item específico del pedido
+      responses:
+        '200':
+          description: Información del item solicitado
+
+  # FUNCIONES DE OPEREACIONES DE PAGOS
+  /orders/{id}/payment:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      tags: 
+        - Payments
+      summary: Obtiene el pago asociado
+      responses:
+        '200':
+          description: Información del pago.
+    post:
+      tags: 
+        - Payments
+      summary: Realiza el pago del pedido
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentRequest'
+      responses:
+        '201':
+          description: Pago procesado.
+    patch:
+      tags: 
+        - Payments
+      summary: Actualiza estado del pago
+      responses:
+        '200':
+          description: Estado del pago actualizado.
+    delete:
+      tags: 
+        - Payments
+      summary: Revierte o elimina el pago
+      responses:
+        '204':
+          description: Pago revertido.
+
+  # DEFINICION DE COMPONENTES 
+components:
+  schemas:
+    # ESQUEMA USUARIOS
+    Users:
+      type: object
+      required: 
+        - name
+        - email
+        - address
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Juan Diego Gomez Taran"
+        email:
+          type: string
+          format: email
+          example: "Kazelo@gmail.com"
+        address:
+          type: string
+          example: "Avenida Tecnologico #23 7600"
+    
+    # ESQUEMA PARA CREAR USUARIO
+    UserCreate:
+      type: object
+      required: 
+        - name
+        - email
+        - password
+        - address
+      properties:
+        name: 
+           type: string
+           example: "Juan Diego"
+        email: 
+          type: string
+          format: email
+          example: "test@gmail.com"
+        password: 
+          type: string
+          format: password
+          minLength: 8 
+        address: 
+          type: string
+
+    # ESQUEMA PARA ACTUALIZAR USUARIO
+    UserUpdate:
+      type: object
+      properties:
+        name: 
+            type: string
+        email: 
+          type: string 
+          format: email 
+        address: 
+          type: string
+
+    # ESQUEMA DE PRODUCTOS
+    Products:
+      type: object
+      required: 
+        - name
+        - price
+        - stock
+      properties:
+        id: 
+          type: integer
+          example: 1
+        name: 
+          type: string
+          example: "Mochila"
+        description: 
+          type: string
+          example: "Mochila Negra"
+        price: 
+          type: number
+          format: float
+          example: 1250.50 
+        stock: 
+          type: integer
+          example: 25
+
+    # ESQUEMA DE ACTULIZACION DE PRODUCTOS
+    ProductUpdate:
+      type: object
+      properties:
+        name: 
+          type: string
+        price: 
+          type: number
+        stock: 
+          type: integer
+
+    # ESQUEMA DE CARRITO
+    Cart:
+      type: object
+      properties:
+        id_cart: 
+          type: integer
+          example: 500
+        userId: 
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CartProduct'
+        totalPrice: 
+          type: number
+          example: 2500.00
+
+    # ESQUEMA DE PRODUCTO EN EL CARRITO
+    CartProduct:
+      type: object
+      properties:
+        itemId: 
+          type: integer
+        productId: 
+          type: integer
+        productName: 
+          type: string
+        quantity: 
+          type: integer
+        subtotal: 
+          type: number
+
+    # ESQUEMA DE PEDIDO DEL CARRITO
+    CartItemRequest:
+      type: object
+      required: 
+        - productId
+        - quantity
+      properties:
+        productId: 
+          type: integer
+        quantity: 
+          type: integer
+          minimum: 1
+
+    # ESQUEMA DE PEDIDO
+    Order:
+      type: object
+      properties:
+        id: 
+          type: string
+          example: "ORD-123"
+        userId: 
+          type: integer
+        status: 
+          type: string
+          example: "pending"
+        total: 
+          type: number
+          example: 1500.00
+        createdAt: 
+          type: string
+          format: date-time
+
+    # ESQUEMA DE PRODUCTO EN EL PEDIDO
+    OrderItem:
+      type: object
+      properties:
+        itemId: 
+          type: string
+        productId: 
+          type: integer
+        quantity: 
+          type: integer
+        priceAtPurchase: 
+          type: number
+
+    # ESQUEMA DE PAGOS
+    PaymentRequest:
+      type: object
+      required: 
+        - method
+      properties:
+        method:
+          type: string
+          enum: 
+            - credit_card
+            - paypal
+            - transfer
+        amount: 
+          type: number
