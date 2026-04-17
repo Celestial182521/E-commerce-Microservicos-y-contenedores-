@@ -87,38 +87,38 @@
                     <parameters>true</parameters>
                 </configuration>
             </plugin>
-
-            <plugin>
-                <groupId>org.openapitools</groupId>
-                <artifactId>openapi-generator-maven-plugin</artifactId>
-                <version>${openapi-generator-maven-plugin.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <inputSpec>${project.basedir}/src/main/resources/api/oas-e-commerce-v1.yaml</inputSpec>
-                            <generatorName>java</generatorName>
-                            <library>native</library>
-                            <output>${project.build.directory}/generated-sources/openapi</output>
-                            <modelPackage>com.ecommerce.api.model</modelPackage>
-                            <generateApis>false</generateApis>
-                            <generateModels>true</generateModels>
-                            <generateSupportingFiles>false</generateSupportingFiles>
-                            <configOptions>
-                                <sourceFolder>src/main/java</sourceFolder>
-                                <dateLibrary>java8</dateLibrary>
-                                <useJakartaEe>true</useJakartaEe>
-                                <useBeanValidation>true</useBeanValidation>
-                                <serializationLibrary>jackson</serializationLibrary>
-                                <openApiNullable>false</openApiNullable>
-                            </configOptions>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
+            <!-- 
+                       <plugin>
+                           <groupId>org.openapitools</groupId>
+                           <artifactId>openapi-generator-maven-plugin</artifactId>
+                           <version>${openapi-generator-maven-plugin.version}</version>
+                           <executions>
+                               <execution>
+                                   <goals>
+                                       <goal>generate</goal>
+                                   </goals>
+                                   <configuration>
+                                       <inputSpec>${project.basedir}/src/main/resources/api/oas-e-commerce-v1.yaml</inputSpec>
+                                       <generatorName>java</generatorName>
+                                       <library>native</library>
+                                       <output>${project.build.directory}/generated-sources/openapi</output>
+                                       <modelPackage>com.ecommerce.api.model</modelPackage>
+                                       <generateApis>false</generateApis>
+                                       <generateModels>true</generateModels>
+                                       <generateSupportingFiles>false</generateSupportingFiles>
+                                       <configOptions>
+                                           <sourceFolder>src/main/java</sourceFolder>
+                                           <dateLibrary>java8</dateLibrary>
+                                           <useJakartaEe>true</useJakartaEe>
+                                           <useBeanValidation>true</useBeanValidation>
+                                           <serializationLibrary>jackson</serializationLibrary>
+                                           <openApiNullable>false</openApiNullable>
+                                       </configOptions>
+                                   </configuration>
+                               </execution>
+                           </executions>
+                       </plugin>
+            -->
             <!-- Plugin eliminado o completado -->
             <!-- Si necesitas build-helper-maven-plugin, así es como se usa correctamente:
             <plugin>
