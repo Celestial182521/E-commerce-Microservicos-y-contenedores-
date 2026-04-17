@@ -4,7 +4,10 @@ La API del sistema permite interactuar con los diferentes módulos del e-commerc
 
 ---
 
- Usuarios
+Usuarios
+
+POST /users
+Crea un nuevo usuario en el sistema.
 
 GET /users
 Lista todos los usuarios registrados.
@@ -13,14 +16,12 @@ Lista todos los usuarios registrados.
 GET /users/{id}
 Obtiene la información de un usuario específico.
 
-POST /users
-Crea un nuevo usuario en el sistema.
-
 PATCH /users/{id}
 Actualiza parcialmente la información de un usuario.
 
 DELETE /users/{id}
 Elimina un usuario del sistema.
+
 ---
 
 # Productos
