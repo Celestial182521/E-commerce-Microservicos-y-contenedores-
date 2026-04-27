@@ -1,8 +1,19 @@
 package com.ecommerce.api.resource;
 
+import com.ecommerce.api.model.Cart;
+import com.ecommerce.api.model.CartItemRequest;
+import com.ecommerce.api.model.CartItemsItemIdPatchRequest;
+import com.ecommerce.api.model.CartProduct;
+import com.ecommerce.api.model.Order;
+import com.ecommerce.api.model.OrdersIdPatchRequest;
+import com.ecommerce.api.model.OrderItem;
+import com.ecommerce.api.model.PaymentRequest;
 import com.ecommerce.api.model.Products;
+import com.ecommerce.api.model.ProductUpdate;
+import com.ecommerce.api.model.UserCreate;
+import com.ecommerce.api.model.Users;
+import com.ecommerce.api.model.UserUpdate;
 import com.ecommerce.api.service.ProductService;
-
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
@@ -34,11 +45,9 @@ public class ProductResource {
     @Path("/products/{productId}")
     public Response getProductById(@PathParam("productId") Integer productId) {
         System.out.println("Resource - Buscando Product con ID: " + productId);
-
         if (productId == null || productId < 1 || productId > 999999) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-
         Products productResponse = productService.getProductById(productId);
         return Response.ok(productResponse).build();
     }
