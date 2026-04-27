@@ -7,7 +7,7 @@
     <packaging>quarkus</packaging>
 
     <properties>
-        <compiler-plugin.version>3.15.0</compiler-plugin.version>
+        <compiler-plugin.version>3.13.0</compiler-plugin.version>
         <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -15,19 +15,9 @@
         <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
         <quarkus.platform.version>3.33.1</quarkus.platform.version>
         <skipITs>true</skipITs>
-<<<<<<< Updated upstream
         <surefire-plugin.version>3.5.4</surefire-plugin.version>
-=======
-        <surefire-plugin.version>3.5.0</surefire-plugin.version>
         <openapi-generator-maven-plugin.version>7.1.0</openapi-generator-maven-plugin.version>
         <javax.validation-api.version>2.0.1.Final</javax.validation-api.version>
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
     </properties>
 
     <dependencyManagement>
@@ -49,49 +39,26 @@
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-rest-jackson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
             <artifactId>quarkus-hibernate-validator</artifactId>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-arc</artifactId>
         </dependency>
-<<<<<<< Updated upstream
-=======
 
         <dependency>
             <groupId>jakarta.validation</groupId>
             <artifactId>jakarta.validation-api</artifactId>
         </dependency>
+
         <dependency>
             <groupId>io.swagger.core.v3</groupId>
-            <artifactId>swagger-annotations</artifactId>
-            <version>2.2.16</version>
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
-=======
-        </dependency>
-
-        <!-- Observabilidad: health checks y métricas -->
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-smallrye-health</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-micrometer-registry-prometheus</artifactId>
->>>>>>> Stashed changes
-        </dependency>
-
-        <!-- Observabilidad: health checks y métricas -->
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-smallrye-health</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-micrometer-registry-prometheus</artifactId>
->>>>>>> Stashed changes
+            <artifactId>swagger-annotations-jakarta</artifactId>
+            <version>2.2.19</version>
         </dependency>
 
         <!-- Observabilidad: health checks y métricas -->
@@ -104,10 +71,9 @@
             <artifactId>quarkus-micrometer-registry-prometheus</artifactId>
         </dependency>
 
->>>>>>> Stashed changes
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-junit</artifactId>
+            <artifactId>quarkus-junit5</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -125,6 +91,7 @@
                 <version>${quarkus.platform.version}</version>
                 <extensions>true</extensions>
             </plugin>
+
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${compiler-plugin.version}</version>
@@ -132,42 +99,20 @@
                     <parameters>true</parameters>
                 </configuration>
             </plugin>
-<<<<<<< Updated upstream
-=======
 
             <!-- Desactivado: modelos ya movidos a src/main/java/com/ecommerce/api/model/
                  Para regenerar: descomentar este plugin y el build-helper de abajo, ejecutar
                  mvn clean compile y volver a mover los archivos generados. -->
             <!--
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
             <plugin>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>${surefire-plugin.version}</version>
-                <configuration>
-                    <argLine>@{argLine}</argLine>
-                    <systemPropertyVariables>
-                        <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
-                        <maven.home>${maven.home}</maven.home>
-                    </systemPropertyVariables>
-                </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <version>${surefire-plugin.version}</version>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+                <version>${openapi-generator-maven-plugin.version}</version>
                 <executions>
                     <execution>
                         <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
+                            <goal>generate</goal>
                         </goals>
-<<<<<<< Updated upstream
-=======
                         <configuration>
                             <inputSpec>${project.basedir}/src/main/resources/api/oas-e-commerce-v1.yaml</inputSpec>
                             <generatorName>java</generatorName>
@@ -191,31 +136,10 @@
                                 <openApiNullable>false</openApiNullable>
                             </configOptions>
                         </configuration>
->>>>>>> Stashed changes
                     </execution>
                 </executions>
-                <configuration>
-                    <argLine>@{argLine}</argLine>
-                    <systemPropertyVariables>
-                        <native.image.path>${project.build.directory}/${project.build.finalName}-runner</native.image.path>
-                        <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
-                        <maven.home>${maven.home}</maven.home>
-                    </systemPropertyVariables>
-                </configuration>
             </plugin>
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-            -->
 
-            <!-- build-helper: registra las fuentes generadas en target/ como fuente Maven.
-                 Solo necesario cuando el openapi-generator-maven-plugin está activo. -->
-            <!--
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
@@ -236,23 +160,7 @@
                 </executions>
             </plugin>
             -->
->>>>>>> Stashed changes
+
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>native</id>
-            <activation>
-                <property>
-                    <name>native</name>
-                </property>
-            </activation>
-            <properties>
-                <quarkus.package.jar.enabled>false</quarkus.package.jar.enabled>
-                <skipITs>false</skipITs>
-                <quarkus.native.enabled>true</quarkus.native.enabled>
-            </properties>
-        </profile>
-    </profiles>
 </project>
