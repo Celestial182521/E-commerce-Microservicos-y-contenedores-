@@ -21,6 +21,9 @@
         <surefire-plugin.version>3.5.0</surefire-plugin.version>
         <openapi-generator-maven-plugin.version>7.1.0</openapi-generator-maven-plugin.version>
         <javax.validation-api.version>2.0.1.Final</javax.validation-api.version>
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     </properties>
 
@@ -60,6 +63,19 @@
             <groupId>io.swagger.core.v3</groupId>
             <artifactId>swagger-annotations</artifactId>
             <version>2.2.16</version>
+<<<<<<< Updated upstream
+=======
+        </dependency>
+
+        <!-- Observabilidad: health checks y métricas -->
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-smallrye-health</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-micrometer-registry-prometheus</artifactId>
+>>>>>>> Stashed changes
         </dependency>
 
         <!-- Observabilidad: health checks y métricas -->
@@ -107,6 +123,9 @@
                  Para regenerar: descomentar este plugin y el build-helper de abajo, ejecutar
                  mvn clean compile y volver a mover los archivos generados. -->
             <!--
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -166,7 +185,10 @@
                 </configuration>
             </plugin>
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 =======
+=======
+>>>>>>> Stashed changes
             -->
 
             <!-- build-helper: registra las fuentes generadas en target/ como fuente Maven.
