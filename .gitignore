@@ -26,3 +26,11 @@ replay_pid*
 # Claude Code
 .claude/
 CLAUDE.md
+
+# Archivos locales
+NOTAS_LOCALES.txt
+COMO_ARRANCAR.txt
+
+# Datos de base de datos y memoria interna
+mysql-data/
+memory/
