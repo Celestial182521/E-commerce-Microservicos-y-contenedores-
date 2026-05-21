@@ -3,23 +3,22 @@ package com.ecommerce.api.service;
 import com.ecommerce.api.entity.CarritoEntity;
 import com.ecommerce.api.entity.DetallePedidoEntity;
 import com.ecommerce.api.entity.PedidoEntity;
+import com.ecommerce.api.mapper.OrderMapper;
 import com.ecommerce.api.model.Order;
 import com.ecommerce.api.model.OrderItem;
 import com.ecommerce.api.model.OrdersIdPatchRequest;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
-@Transactional
 public class OrderService {
 
     private static final Long DEFAULT_USER_ID = 1L;
@@ -30,19 +29,23 @@ public class OrderService {
         "completed", "ENTREGADO"
     );
 
-    private static final Map<String, String> DB_TO_API = Map.of(
-        "PENDIENTE",  "pending",
-        "CONFIRMADO", "pending",
-        "ENVIADO",    "shipped",
-        "ENTREGADO",  "completed",
-        "CANCELADO",  "pending"
-    );
+    @Inject
+    OrderMapper orderMapper;
 
     public List<Order> getAllOrders() {
         return PedidoEntity.<PedidoEntity>listAll()
-                .stream().map(this::toModel).collect(Collectors.toList());
+                .stream().map(this::toOrderWithTotal).collect(Collectors.toList());
     }
 
+    public Order getOrderById(String id) {
+        PedidoEntity entity = PedidoEntity.findById(parseId(id));
+        if (entity == null)
+            throw new WebApplicationException(
+                Response.status(404).entity("Pedido no encontrado").build());
+        return toOrderWithTotal(entity);
+    }
+
+    @Transactional
     public Order createOrder() {
         PedidoEntity pedido = new PedidoEntity();
         pedido.idUser       = DEFAULT_USER_ID;
@@ -50,7 +53,6 @@ public class OrderService {
         pedido.fecha        = LocalDateTime.now();
         pedido.persistAndFlush();
 
-        // Pasar items del carrito a detalles_pedido
         List<CarritoEntity> carrito = CarritoEntity.list("idUser", DEFAULT_USER_ID);
         for (CarritoEntity item : carrito) {
             DetallePedidoEntity detalle = new DetallePedidoEntity();
@@ -62,17 +64,10 @@ public class OrderService {
         }
         CarritoEntity.delete("idUser", DEFAULT_USER_ID);
 
-        return toModel(pedido);
+        return toOrderWithTotal(pedido);
     }
 
-    public Order getOrderById(String id) {
-        PedidoEntity entity = PedidoEntity.findById(parseId(id));
-        if (entity == null)
-            throw new WebApplicationException(
-                Response.status(404).entity("Pedido no encontrado").build());
-        return toModel(entity);
-    }
-
+    @Transactional
     public Order updateOrderStatus(String id, OrdersIdPatchRequest request) {
         PedidoEntity entity = PedidoEntity.findById(parseId(id));
         if (entity == null)
@@ -82,9 +77,10 @@ public class OrderService {
             String apiStatus = request.getStatus().getValue();
             entity.estadoPedido = API_TO_DB.getOrDefault(apiStatus.toLowerCase(), apiStatus.toUpperCase());
         }
-        return toModel(entity);
+        return toOrderWithTotal(entity);
     }
 
+    @Transactional
     public void cancelOrder(String id) {
         PedidoEntity entity = PedidoEntity.findById(parseId(id));
         if (entity == null)
@@ -95,7 +91,7 @@ public class OrderService {
 
     public List<OrderItem> getOrderItems(String orderId) {
         return DetallePedidoEntity.<DetallePedidoEntity>list("idPedido", parseId(orderId))
-                .stream().map(this::toItemModel).collect(Collectors.toList());
+                .stream().map(orderMapper::toItemModel).collect(Collectors.toList());
     }
 
     public OrderItem getOrderItem(String orderId, String itemId) {
@@ -103,35 +99,15 @@ public class OrderService {
         if (entity == null || !entity.idPedido.equals(parseId(orderId)))
             throw new WebApplicationException(
                 Response.status(404).entity("Item de pedido no encontrado").build());
-        return toItemModel(entity);
+        return orderMapper.toItemModel(entity);
     }
 
-    private Order toModel(PedidoEntity e) {
+    private Order toOrderWithTotal(PedidoEntity e) {
         BigDecimal total = DetallePedidoEntity.<DetallePedidoEntity>list("idPedido", e.idPedido)
                 .stream()
                 .map(d -> d.precioTotal != null ? d.precioTotal : BigDecimal.ZERO)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        Order o = new Order();
-        o.setId(String.valueOf(e.idPedido));
-        o.setUserId(e.idUser.intValue());
-        o.setStatus(DB_TO_API.getOrDefault(e.estadoPedido, "pending"));
-        o.setTotal(total);
-        o.setCreatedAt(e.fecha != null
-                ? e.fecha.atOffset(ZoneOffset.of("-06:00"))
-                : OffsetDateTime.now());
-        return o;
-    }
-
-    private OrderItem toItemModel(DetallePedidoEntity e) {
-        OrderItem item = new OrderItem();
-        item.setItemId(String.valueOf(e.idDetalle));
-        item.setProductId(e.idProducto.intValue());
-        item.setQuantity(e.cantidad);
-        item.setPriceAtPurchase(e.cantidad > 0
-                ? e.precioTotal.divide(new BigDecimal(e.cantidad), 2, java.math.RoundingMode.HALF_UP)
-                : BigDecimal.ZERO);
-        return item;
+        return orderMapper.toModel(e, total);
     }
 
     private Long parseId(String id) {

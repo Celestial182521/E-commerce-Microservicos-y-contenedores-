@@ -2,11 +2,13 @@ package com.ecommerce.api.service;
 
 import com.ecommerce.api.entity.CarritoEntity;
 import com.ecommerce.api.entity.ProductoEntity;
+import com.ecommerce.api.mapper.CartMapper;
 import com.ecommerce.api.model.Cart;
 import com.ecommerce.api.model.CartItemRequest;
 import com.ecommerce.api.model.CartItemsItemIdPatchRequest;
 import com.ecommerce.api.model.CartProduct;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
@@ -15,41 +17,30 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
-@Transactional
 public class CartService {
 
     private static final Long DEFAULT_USER_ID = 1L;
+
+    @Inject
+    CartMapper cartMapper;
 
     public Cart getCart() {
         List<CarritoEntity> items = CarritoEntity.list("idUser", DEFAULT_USER_ID);
 
         List<CartProduct> cartItems = items.stream().map(item -> {
-            CartProduct cp = new CartProduct();
-            cp.setItemId(item.idCarrito.intValue());
-            cp.setProductId(item.idProducto.intValue());
-            cp.setQuantity(item.cantidad);
-            cp.setSubtotal(item.total);
             ProductoEntity producto = ProductoEntity.findById(item.idProducto);
-            if (producto != null) cp.setProductName(producto.nombre);
-            return cp;
+            return cartMapper.toCartProduct(item, producto != null ? producto.nombre : null);
         }).collect(Collectors.toList());
 
-        BigDecimal total = items.stream()
-                .map(i -> i.total != null ? i.total : BigDecimal.ZERO)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        Cart cart = new Cart();
-        cart.setIdCart(DEFAULT_USER_ID.intValue());
-        cart.setUserId(DEFAULT_USER_ID.intValue());
-        cart.setItems(cartItems);
-        cart.setTotalPrice(total);
-        return cart;
+        return cartMapper.toCart(DEFAULT_USER_ID, cartItems);
     }
 
+    @Transactional
     public void clearCart() {
         CarritoEntity.delete("idUser", DEFAULT_USER_ID);
     }
 
+    @Transactional
     public CartProduct addItem(CartItemRequest request) {
         ProductoEntity producto = ProductoEntity.findById(request.getProductId().longValue());
         if (producto == null)
@@ -57,23 +48,14 @@ public class CartService {
                 Response.status(404).entity("Producto no encontrado").build());
 
         BigDecimal subtotal = producto.precio.multiply(new BigDecimal(request.getQuantity()));
-
-        CarritoEntity entity = new CarritoEntity();
-        entity.idUser     = DEFAULT_USER_ID;
-        entity.idProducto = request.getProductId().longValue();
-        entity.cantidad   = request.getQuantity();
-        entity.total      = subtotal;
+        CarritoEntity entity = cartMapper.toEntity(
+                DEFAULT_USER_ID, request.getProductId().longValue(), request.getQuantity(), subtotal);
         entity.persist();
 
-        CartProduct response = new CartProduct();
-        response.setItemId(entity.idCarrito.intValue());
-        response.setProductId(request.getProductId());
-        response.setProductName(producto.nombre);
-        response.setQuantity(request.getQuantity());
-        response.setSubtotal(subtotal);
-        return response;
+        return cartMapper.toCartProduct(entity, producto.nombre);
     }
 
+    @Transactional
     public CartProduct updateItemQuantity(Integer itemId, CartItemsItemIdPatchRequest request) {
         CarritoEntity entity = CarritoEntity.findById(itemId.longValue());
         if (entity == null)
@@ -85,15 +67,10 @@ public class CartService {
         if (producto != null)
             entity.total = producto.precio.multiply(new BigDecimal(request.getQuantity()));
 
-        CartProduct response = new CartProduct();
-        response.setItemId(entity.idCarrito.intValue());
-        response.setProductId(entity.idProducto.intValue());
-        response.setQuantity(entity.cantidad);
-        response.setSubtotal(entity.total);
-        if (producto != null) response.setProductName(producto.nombre);
-        return response;
+        return cartMapper.toCartProduct(entity, producto != null ? producto.nombre : null);
     }
 
+    @Transactional
     public void removeItem(Integer itemId) {
         boolean deleted = CarritoEntity.deleteById(itemId.longValue());
         if (!deleted)
