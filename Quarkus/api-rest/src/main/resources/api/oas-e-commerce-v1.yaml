@@ -1,0 +1,741 @@
+openapi: 3.0.4
+info:
+  title: OAS ecommerce Dinamita
+  description: API REST completa para el uso en un ecommerce (Gestión de Usuarios, catálogo, carrito de compras y gestión de pedidos).
+  version: 1.0.2
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Servidor de desarrollo
+
+tags:
+  - name: Users
+    description: Operaciones de usuarios en el ecommerce
+  - name: Products
+    description: Funciones del catálogo de productos
+  - name: Cart
+    description: Funciones del carrito de compras del usuario
+  - name: Orders
+    description: Gestión de pedidos y estados de compra
+  - name: Payments
+    description: Procesamiento y consulta de pagos
+
+paths:
+  # ==================== USUARIOS ====================
+  /Users:
+    post:
+      tags: [Users]
+      summary: Crear nuevo usuario
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+      responses:
+        '201':
+          description: Usuario creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Users'
+        '400':
+          description: Datos de entrada inválidos
+        '409':
+          description: Conflicto - El usuario ya existe
+    get:
+      tags: [Users]
+      summary: Obtener lista de todos los Usuarios
+      operationId: allUsers
+      parameters:
+        - name: name
+          in: query
+          schema: { type: string }
+          description: Filtrar por nombre (coincidencia parcial)
+        - name: email
+          in: query
+          schema: { type: string, format: email }
+          description: Filtrar por correo electrónico exacto
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, default: 20 }
+          description: Número máximo de resultados
+        - name: offset
+          in: query
+          schema: { type: integer, minimum: 0, default: 0 }
+          description: Número de registros a saltar
+      responses:
+        '200':
+          description: Lista de usuarios obtenida
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Users'
+
+  /Users/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: integer }
+    get:
+      tags: [Users]
+      summary: Obtener un usuario específico
+      responses:
+        '200':
+          description: Usuario encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Users'
+        '404':
+          description: Usuario no encontrado
+    patch:
+      tags: [Users]
+      summary: Actualiza parcialmente la información del usuario
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+      responses:
+        '200':
+          description: Información actualizada
+        '404':
+          description: Usuario no encontrado
+    delete:
+      tags: [Users]
+      summary: Eliminar usuario del sistema
+      responses:
+        '204':
+          description: Usuario eliminado
+        '404':
+          description: Usuario no encontrado
+
+  # ==================== PRODUCTOS ====================
+  /products:
+    get:
+      tags: [Products]
+      summary: Lista productos con filtros
+      parameters:
+        - name: name
+          in: query
+          schema: { type: string }
+          description: Filtrar por nombre (coincidencia parcial)
+        - name: minPrice
+          in: query
+          schema: { type: number, format: float }
+          description: Precio mínimo
+        - name: maxPrice
+          in: query
+          schema: { type: number, format: float }
+          description: Precio máximo
+        - name: inStock
+          in: query
+          schema: { type: boolean }
+          description: Solo productos con stock > 0
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, default: 20 }
+        - name: offset
+          in: query
+          schema: { type: integer, minimum: 0, default: 0 }
+      responses:
+        '200':
+          description: Lista de productos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Products'
+    post:
+      tags: [Products]
+      summary: Crea un nuevo producto
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductCreate'
+      responses:
+        '201':
+          description: Producto creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Products'
+        '400':
+          description: Datos inválidos
+
+  /products/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: integer }
+    get:
+      tags: [Products]
+      summary: Obtener un producto por su ID
+      responses:
+        '200':
+          description: Producto encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Products'
+        '404':
+          description: Producto no encontrado
+    patch:
+      tags: [Products]
+      summary: Actualiza parcialmente un producto
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductUpdate'
+      responses:
+        '200':
+          description: Producto actualizado
+        '404':
+          description: Producto no encontrado
+    delete:
+      tags: [Products]
+      summary: Elimina un producto
+      responses:
+        '204':
+          description: Producto eliminado
+        '404':
+          description: Producto no encontrado
+
+  # ==================== CARRITO ====================
+  /cart:
+    get:
+      tags: [Cart]
+      summary: Obtiene el carrito del usuario
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          schema: { type: integer }
+          description: ID del usuario dueño del carrito
+      responses:
+        '200':
+          description: Detalle del carrito
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+        '404':
+          description: Carrito no encontrado
+    delete:
+      tags: [Cart]
+      summary: Vacía completamente el carrito
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          schema: { type: integer }
+          description: ID del usuario dueño del carrito
+      responses:
+        '204':
+          description: Carrito vaciado
+        '404':
+          description: Carrito no encontrado
+
+  /cart/items:
+    post:
+      tags: [Cart]
+      summary: Agrega un producto al carrito
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          schema: { type: integer }
+          description: ID del usuario dueño del carrito
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CartItemRequest'
+      responses:
+        '201':
+          description: Producto añadido
+        '400':
+          description: Datos inválidos o stock insuficiente
+        '404':
+          description: Producto no encontrado
+
+  /cart/items/{itemId}:
+    parameters:
+      - name: itemId
+        in: path
+        required: true
+        schema: { type: integer }
+        description: ID del item dentro del carrito
+    patch:
+      tags: [Cart]
+      summary: Modifica la cantidad de un producto en el carrito
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          schema: { type: integer }
+          description: ID del usuario dueño del carrito
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [quantity]
+              properties:
+                quantity:
+                  type: integer
+                  minimum: 1
+      responses:
+        '200':
+          description: Cantidad actualizada
+        '400':
+          description: Cantidad inválida o stock insuficiente
+        '404':
+          description: Item no encontrado
+    delete:
+      tags: [Cart]
+      summary: Elimina un producto del carrito
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          schema: { type: integer }
+          description: ID del usuario dueño del carrito
+      responses:
+        '204':
+          description: Producto removido
+        '404':
+          description: Item no encontrado
+
+  # ==================== PEDIDOS ====================
+  /orders:
+    get:
+      tags: [Orders]
+      summary: Lista pedidos del usuario
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          schema: { type: integer }
+          description: ID del usuario dueño de los pedidos
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, shipped, completed, cancelled]
+          description: Filtrar por estado
+        - name: fromDate
+          in: query
+          schema: { type: string, format: date }
+          description: Fecha mínima (YYYY-MM-DD)
+        - name: toDate
+          in: query
+          schema: { type: string, format: date }
+          description: Fecha máxima (YYYY-MM-DD)
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, default: 20 }
+        - name: offset
+          in: query
+          schema: { type: integer, minimum: 0, default: 0 }
+      responses:
+        '200':
+          description: Lista de pedidos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+    post:
+      tags: [Orders]
+      summary: Crea un pedido a partir del carrito actual
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderCreate'
+      responses:
+        '201':
+          description: Pedido generado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '400':
+          description: Carrito vacío o datos inválidos
+        '404':
+          description: Usuario no encontrado
+
+  /orders/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string }
+        description: ID del pedido (ej. ORD-123)
+    get:
+      tags: [Orders]
+      summary: Obtiene un pedido específico
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          schema: { type: integer }
+          description: ID del usuario dueño del pedido
+      responses:
+        '200':
+          description: Detalle del pedido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '403':
+          description: No autorizado (el pedido no pertenece al usuario)
+        '404':
+          description: Pedido no encontrado
+    patch:
+      tags: [Orders]
+      summary: Actualiza el estado del pedido
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          schema: { type: integer }
+          description: ID del usuario dueño del pedido
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status:
+                  type: string
+                  enum: [pending, shipped, completed, cancelled]
+      responses:
+        '200':
+          description: Estado actualizado
+        '403':
+          description: No autorizado
+        '404':
+          description: Pedido no encontrado
+    delete:
+      tags: [Orders]
+      summary: Cancela un pedido (solo si está pendiente)
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          schema: { type: integer }
+          description: ID del usuario dueño del pedido
+      responses:
+        '204':
+          description: Pedido cancelado
+        '403':
+          description: No autorizado o el pedido ya no se puede cancelar
+        '404':
+          description: Pedido no encontrado
+
+  # ==================== DETALLES DE PEDIDO ====================
+  /orders/{id}/items:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string }
+    get:
+      tags: [Orders]
+      summary: Lista los ítems de un pedido
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          schema: { type: integer }
+          description: ID del usuario dueño del pedido
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, default: 20 }
+        - name: offset
+          in: query
+          schema: { type: integer, minimum: 0, default: 0 }
+      responses:
+        '200':
+          description: Lista de ítems
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderItem'
+        '403':
+          description: No autorizado
+        '404':
+          description: Pedido no encontrado
+
+  /orders/{id}/items/{itemId}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string }
+      - name: itemId
+        in: path
+        required: true
+        schema: { type: string }
+    get:
+      tags: [Orders]
+      summary: Obtiene un ítem específico del pedido
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          schema: { type: integer }
+          description: ID del usuario dueño del pedido
+      responses:
+        '200':
+          description: Información del ítem
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderItem'
+        '403':
+          description: No autorizado
+        '404':
+          description: Pedido o ítem no encontrado
+
+  # ==================== PAGOS ====================
+  /orders/{id}/payment:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string }
+    get:
+      tags: [Payments]
+      summary: Obtiene el pago asociado a un pedido
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          schema: { type: integer }
+          description: ID del usuario dueño del pedido
+      responses:
+        '200':
+          description: Información del pago
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+        '403':
+          description: No autorizado
+        '404':
+          description: Pedido o pago no encontrado
+    post:
+      tags: [Payments]
+      summary: Realiza el pago de un pedido
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          schema: { type: integer }
+          description: ID del usuario dueño del pedido
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentRequest'
+      responses:
+        '201':
+          description: Pago procesado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+        '400':
+          description: Método de pago inválido o monto incorrecto
+        '403':
+          description: No autorizado
+        '404':
+          description: Pedido no encontrado
+    patch:
+      tags: [Payments]
+      summary: Actualiza el estado del pago (solo para administradores)
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          schema: { type: integer }
+          description: ID del usuario (requerido, debe ser admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status:
+                  type: string
+                  enum: [pending, completed, failed, refunded]
+      responses:
+        '200':
+          description: Estado actualizado
+        '403':
+          description: No autorizado (solo admin)
+        '404':
+          description: Pago no encontrado
+    delete:
+      tags: [Payments]
+      summary: Revierte o elimina el pago (solo si está pendiente)
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          schema: { type: integer }
+          description: ID del usuario dueño del pedido
+      responses:
+        '204':
+          description: Pago revertido
+        '403':
+          description: No autorizado o el pago ya fue completado
+        '404':
+          description: Pago no encontrado
+
+# ==================== COMPONENTES ====================
+components:
+  schemas:
+    Users:
+      type: object
+      required: [name, email, address]
+      properties:
+        id: { type: integer, example: 1 }
+        name: { type: string, example: "Juan Diego Gomez Taran" }
+        email: { type: string, format: email, example: "kazelo@gmail.com" }
+        address: { type: string, example: "Avenida Tecnologico #23 7600" }
+
+    UserCreate:
+      type: object
+      required: [name, email, password, address]
+      properties:
+        name: { type: string, example: "Juan Diego" }
+        email: { type: string, format: email, example: "test@gmail.com" }
+        password: { type: string, format: password, minLength: 8 }
+        address: { type: string }
+
+    UserUpdate:
+      type: object
+      properties:
+        name: { type: string }
+        email: { type: string, format: email }
+        address: { type: string }
+
+    Products:
+      type: object
+      required: [name, price, stock]
+      properties:
+        id: { type: integer, example: 1 }
+        name: { type: string, example: "Mochila" }
+        description: { type: string, example: "Mochila Negra" }
+        price: { type: number, format: float, example: 1250.50 }
+        stock: { type: integer, example: 25 }
+
+    ProductCreate:
+      type: object
+      required: [name, price, stock]
+      properties:
+        name: { type: string, example: "Mochila" }
+        description: { type: string, example: "Mochila Negra" }
+        price: { type: number, format: float, example: 1250.50 }
+        stock: { type: integer, example: 25 }
+
+    ProductUpdate:
+      type: object
+      properties:
+        name: { type: string }
+        price: { type: number }
+        stock: { type: integer }
+
+    Cart:
+      type: object
+      properties:
+        id_cart: { type: integer, example: 500 }
+        userId: { type: integer }
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/CartProduct' }
+        totalPrice: { type: number, example: 2500.00 }
+
+    CartProduct:
+      type: object
+      properties:
+        itemId: { type: integer }
+        productId: { type: integer }
+        productName: { type: string }
+        quantity: { type: integer }
+        subtotal: { type: number }
+
+    CartItemRequest:
+      type: object
+      required: [productId, quantity]
+      properties:
+        productId: { type: integer }
+        quantity: { type: integer, minimum: 1 }
+
+    Order:
+      type: object
+      properties:
+        id: { type: string, example: "ORD-123" }
+        userId: { type: integer }
+        status: { type: string, enum: [pending, shipped, completed, cancelled], example: "pending" }
+        total: { type: number, example: 1500.00 }
+        createdAt: { type: string, format: date-time }
+
+    OrderCreate:
+      type: object
+      required: [userId]
+      properties:
+        userId: { type: integer, description: "ID del usuario cuyo carrito se convertirá en pedido" }
+
+    OrderItem:
+      type: object
+      properties:
+        itemId: { type: string }
+        productId: { type: integer }
+        quantity: { type: integer }
+        priceAtPurchase: { type: number }
+
+    PaymentRequest:
+      type: object
+      required: [method]
+      properties:
+        method: { type: string, enum: [credit_card, paypal, transfer] }
+        amount: { type: number }
+
+    Payment:
+      type: object
+      properties:
+        id: { type: integer }
+        orderId: { type: string }
+        method: { type: string }
+        status: { type: string, enum: [pending, completed, failed, refunded] }
+        amount: { type: number }
+        createdAt: { type: string, format: date-time }
