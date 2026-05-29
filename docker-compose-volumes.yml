@@ -24,7 +24,7 @@ services:
       retries: 5
 
   ecommerce-app:
-    image: celestial1825/ecommerce-api:1.0.1
+    image: celestial1825/ecommerce-api:1.0.2
     container_name: ecommerce-app
     platform: linux/amd64
     environment:
